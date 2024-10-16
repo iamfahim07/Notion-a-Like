@@ -1,21 +1,34 @@
 "use client";
 
+import { useMutation } from "convex/react";
 import { useTheme } from "next-themes";
 
-import { useEdgeStore } from "@/lib/edgestore";
+import { api } from "@/convex/_generated/api";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
-export default function Editor({ onChange, initialContent, editable }) {
+export default function Editor({ editable, onChange, initialContent }) {
   const { resolvedTheme } = useTheme();
-  const { edgestore } = useEdgeStore();
+
+  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
+  const generateImageUrl = useMutation(api.documents.generateImageUrl);
 
   const handleUpload = async (file) => {
-    const response = await edgestore.publicFiles.upload({ file });
+    const postUrl = await generateUploadUrl();
 
-    return response.url;
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+
+    const { storageId } = await result.json();
+
+    return await generateImageUrl({
+      storageId: storageId,
+    });
   };
 
   // Creates a new editor instance.
@@ -30,7 +43,7 @@ export default function Editor({ onChange, initialContent, editable }) {
       editor={editor}
       editable={editable}
       theme={resolvedTheme === "dark" ? "dark" : "light"}
-      onChange={() => onChange(JSON.stringify(editor.document))}
+      onChange={() => onChange?.(JSON.stringify(editor.document))}
     />
   );
 }

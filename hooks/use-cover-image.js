@@ -1,9 +1,9 @@
 const { create } = require("zustand");
 
 export const useCoverImage = create((set) => ({
-  url: undefined,
+  storageId: undefined,
   isOpen: false,
-  onOpen: () => set({ isOpen: true, url: undefined }),
-  onClose: () => set({ isOpen: false, url: undefined }),
-  onReplace: (url) => set({ isOpen: true, url }),
+  onOpen: () => set({ isOpen: true, storageId: undefined }),
+  onClose: () => set({ isOpen: false, storageId: undefined }),
+  onReplace: (storageId) => set({ isOpen: true, storageId }),
 }));

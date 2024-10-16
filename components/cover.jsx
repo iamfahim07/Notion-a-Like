@@ -9,24 +9,22 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { useCoverImage } from "@/hooks/use-cover-image";
-import { useEdgeStore } from "@/lib/edgestore";
 import { cn } from "@/lib/utils";
 
-export default function Cover({ url, preview }) {
-  const { edgestore } = useEdgeStore();
+export default function Cover({
+  coverImageData = '{"storageId": "", "imageUrl": ""}',
+  isLocked,
+  preview,
+}) {
+  const { storageId, imageUrl: url } = JSON.parse(coverImageData);
   const params = useParams();
   const coverImage = useCoverImage();
   const removeCoverImage = useMutation(api.documents.removeCoverImage);
 
   const onRemove = async () => {
-    if (url) {
-      await edgestore.publicFiles.delete({
-        url: url,
-      });
-    }
-
     removeCoverImage({
       id: params.documentId,
+      storageId: storageId,
     });
   };
 
@@ -40,10 +38,10 @@ export default function Cover({ url, preview }) {
     >
       {!!url && <Image src={url} fill alt="Cover" className="object-cover" />}
 
-      {url && !preview && (
+      {url && !preview && !isLocked && (
         <div className="opacity-0 group-hover:opacity-100 absolute bottom-5 right-5 flex items-center gap-x-2">
           <Button
-            onClick={() => coverImage.onReplace(url)}
+            onClick={() => coverImage.onReplace(storageId)}
             className="text-muted-foreground text-xs"
             variant="outline"
             size="sm"

@@ -5,8 +5,6 @@ import * as React from "react";
 import { useDropzone } from "react-dropzone";
 import { twMerge } from "tailwind-merge";
 
-import { formatFileSize } from "@edgestore/react/utils";
-
 import { Spinner } from "./spinner";
 
 const variants = {
@@ -22,7 +20,7 @@ const variants = {
 
 const ERROR_MESSAGES = {
   fileTooLarge(maxSize) {
-    return `The file is too large. Max size is ${formatFileSize(maxSize)}.`;
+    return `The file is too large.`;
   },
   fileInvalidType() {
     return "Invalid file type.";

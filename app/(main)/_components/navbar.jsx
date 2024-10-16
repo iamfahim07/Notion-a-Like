@@ -50,7 +50,7 @@ export default function Navbar({ isCollapsed, onResetWidth }) {
 
           <div className="flex items-center gap-x-2">
             <Publish initialData={document} />
-            <Menu documentId={document._id} />
+            <Menu initialData={document} />
           </div>
         </div>
       </nav>

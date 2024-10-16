@@ -5,16 +5,22 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { SingleImageDropzone } from "@/components/single-image-dropzone";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { api } from "@/convex/_generated/api";
 import { useCoverImage } from "@/hooks/use-cover-image";
-import { useEdgeStore } from "@/lib/edgestore";
 
 export const CoverImageModal = () => {
   const params = useParams();
   const update = useMutation(api.documents.update);
   const coverImage = useCoverImage();
-  const { edgestore } = useEdgeStore();
+  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
+  const generateImageUrl = useMutation(api.documents.generateImageUrl);
+  const removeImage = useMutation(api.documents.removeImage);
 
   const [file, setFile] = useState();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,16 +36,30 @@ export const CoverImageModal = () => {
       setIsSubmitting(true);
       setFile(file);
 
-      const res = await edgestore.publicFiles.upload({
-        file,
-        options: {
-          replaceTargetUrl: coverImage.url,
-        },
+      if (coverImage.storageId) {
+        await removeImage({ storageId: coverImage.storageId });
+      }
+
+      const postUrl = await generateUploadUrl();
+
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      const { storageId } = await result.json();
+
+      const imageUrl = await generateImageUrl({
+        storageId: storageId,
       });
 
       await update({
         id: params.documentId,
-        coverImage: res.url,
+        coverImage: JSON.stringify({
+          storageId,
+          imageUrl,
+        }),
       });
 
       onClose();
@@ -50,7 +70,9 @@ export const CoverImageModal = () => {
     <Dialog open={coverImage.isOpen} onOpenChange={coverImage.onClose}>
       <DialogContent>
         <DialogHeader>
-          <h2 className="text-center text-lg font-semibold">Cover Image</h2>
+          <DialogTitle className="text-center text-lg font-semibold">
+            Cover Image
+          </DialogTitle>
         </DialogHeader>
         <SingleImageDropzone
           className="w-full outline-none"

@@ -262,6 +262,7 @@ export const update = mutation({
   args: {
     id: v.id("documents"),
     title: v.optional(v.string()),
+    isLocked: v.optional(v.boolean()),
     content: v.optional(v.string()),
     coverImage: v.optional(v.string()),
     icon: v.optional(v.string()),
@@ -325,8 +326,39 @@ export const removeIcon = mutation({
   },
 });
 
+export const generateUploadUrl = mutation(async (ctx) => {
+  const identity = await ctx.auth.getUserIdentity();
+
+  if (!identity) {
+    throw new Error("Not authenticated!");
+  }
+
+  const userId = identity.subject;
+
+  return await ctx.storage.generateUploadUrl();
+});
+
+export const generateImageUrl = mutation({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated!");
+    }
+
+    const userId = identity.subject;
+
+    const url = ctx.storage.getUrl(args.storageId);
+
+    return url;
+  },
+});
+
 export const removeCoverImage = mutation({
-  args: { id: v.id("documents") },
+  args: { id: v.id("documents"), storageId: v.id("_storage") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
 
@@ -346,10 +378,27 @@ export const removeCoverImage = mutation({
       throw new Error("Unauthorized!");
     }
 
+    await ctx.storage.delete(args.storageId);
+
     const document = await ctx.db.patch(args.id, {
       coverImage: undefined,
     });
 
     return document;
+  },
+});
+
+export const removeImage = mutation({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated!");
+    }
+
+    const userId = identity.subject;
+
+    return await ctx.storage.delete(args.storageId);
   },
 });

@@ -22,7 +22,7 @@ export default function Toolbar({ initialData, preview }) {
   const coverImage = useCoverImage();
 
   const enableInput = () => {
-    if (preview) return;
+    if (preview || initialData.isLocked) return;
 
     setIsEditing(true);
     setTimeout(() => {
@@ -63,7 +63,7 @@ export default function Toolbar({ initialData, preview }) {
 
   return (
     <div className="pl-[54px] group relative">
-      {!!initialData.icon && !preview && (
+      {!!initialData.icon && !preview && !initialData.isLocked && (
         <div className="flex items-center gap-x-2 group/icon pt-6">
           <IconPicker onChange={onIconSelect}>
             <p className="text-6xl hover:opacity-75 transition">
@@ -82,12 +82,12 @@ export default function Toolbar({ initialData, preview }) {
         </div>
       )}
 
-      {!!initialData.icon && preview && (
+      {!!initialData.icon && (preview || initialData.isLocked) && (
         <p className="text-6xl pt-6">{initialData.icon}</p>
       )}
 
       <div className="opacity-0 group-hover:opacity-100 flex items-center gap-x-1 py-4">
-        {!initialData.icon && !preview && (
+        {!initialData.icon && !preview && !initialData.isLocked && (
           <IconPicker asChild onChange={onIconSelect}>
             <Button
               className="text-muted-foreground text-xs"
@@ -100,7 +100,7 @@ export default function Toolbar({ initialData, preview }) {
           </IconPicker>
         )}
 
-        {!initialData.coverImage && !preview && (
+        {!initialData.coverImage && !preview && !initialData.isLocked && (
           <Button
             onClick={coverImage.onOpen}
             className="text-muted-foreground text-xs"
@@ -112,7 +112,7 @@ export default function Toolbar({ initialData, preview }) {
           </Button>
         )}
       </div>
-      {isEditing && !preview ? (
+      {isEditing && !preview && !initialData.isLocked ? (
         <TextareaAutosize
           ref={inputRef}
           onBlur={disableInput}

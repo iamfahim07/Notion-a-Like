@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "convex/react";
+import { Lock, LockOpen } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,8 +15,11 @@ export default function Title({ initialData }) {
 
   const [title, setTitle] = useState(initialData.title || "Untitled");
   const [isEditing, setIsEditing] = useState(false);
+  const [showLockButton, setShowLockButton] = useState(false);
 
   const enableInput = () => {
+    if (initialData.isLocked) return;
+
     setTitle(initialData.title);
     setIsEditing(true);
     setTimeout(() => {
@@ -42,8 +46,16 @@ export default function Title({ initialData }) {
     }
   };
 
+  const onLock = () => {
+    update({
+      id: initialData._id,
+      isLocked: !initialData.isLocked,
+    });
+    setShowLockButton(true);
+  };
+
   return (
-    <div className="flex items-center gap-x-1">
+    <div className="flex items-center justify-center gap-x-1">
       {!!initialData.icon && <p>{initialData.icon}</p>}
 
       {isEditing ? (
@@ -66,6 +78,28 @@ export default function Title({ initialData }) {
           <span className="truncate">{initialData?.title}</span>
         </Button>
       )}
+
+      {initialData.isLocked ? (
+        <Button
+          onClick={onLock}
+          variant="ghost"
+          size="sm"
+          className="font-normal flex items-center gap-2 text-muted-foreground hover:bg-neutral-300 dark:hover:bg-neutral-600"
+        >
+          <Lock className="h-4 w-4 " />
+          Locked
+        </Button>
+      ) : showLockButton ? (
+        <Button
+          onClick={onLock}
+          variant="outline"
+          size="sm"
+          className="font-normal flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+        >
+          <LockOpen className="h-4 w-4 " />
+          Re-lock
+        </Button>
+      ) : null}
     </div>
   );
 }

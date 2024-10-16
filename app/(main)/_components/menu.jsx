@@ -14,17 +14,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/clerk-react";
 
-export const Menu = ({ documentId }) => {
+export const Menu = ({ initialData }) => {
   const router = useRouter();
   const { user } = useUser();
 
+  const update = useMutation(api.documents.update);
   const archive = useMutation(api.documents.archive);
 
+  const onLock = (e) => {
+    e.stopPropagation();
+
+    update({
+      id: initialData._id,
+      isLocked: !initialData.isLocked,
+    });
+  };
+
   const onArchive = () => {
-    const promise = archive({ id: documentId });
+    const promise = archive({ id: initialData._id });
 
     toast.promise(promise, {
       loading: "Moving to trash...",
@@ -49,10 +60,26 @@ export const Menu = ({ documentId }) => {
         alignOffset={8}
         forceMount
       >
+        <DropdownMenuItem>
+          <div
+            className="w-full flex items-center justify-between cursor-pointer"
+            onClick={(e) => onLock(e)}
+          >
+            Lock page
+            <Switch
+              className="data-[state=checked]:bg-blue-400"
+              checked={initialData.isLocked}
+            />
+          </div>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
         <DropdownMenuItem onClick={onArchive}>
           <Trash className="h-4 w-4 mr-2" />
           Delete
         </DropdownMenuItem>
+
         <DropdownMenuSeparator />
 
         <div className="text-xs text-muted-foreground p-2">
