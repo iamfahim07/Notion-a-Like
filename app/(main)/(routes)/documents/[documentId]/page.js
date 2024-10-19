@@ -58,7 +58,7 @@ export default function DocumentIdPage({ params }) {
         <Toolbar initialData={document} />
         <Editor
           editable={!document.isLocked}
-          onChange={onChange}
+          onChange={document.isLocked ? null : onChange}
           initialContent={document.content}
         />
       </div>

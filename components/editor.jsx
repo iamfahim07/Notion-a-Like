@@ -5,10 +5,13 @@ import { useTheme } from "next-themes";
 import { RiChat1Line } from "react-icons/ri";
 
 import { Callout } from "@/blocknote-extended/callout";
+import { MarkAsCodeStyle } from "@/blocknote-extended/custom-styles/mark-as-code-style";
+import { MarkAsCode } from "@/blocknote-extended/mark-as-code";
 import { api } from "@/convex/_generated/api";
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
+  defaultStyleSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
 } from "@blocknote/core";
@@ -16,9 +19,18 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  BasicTextStyleButton,
+  BlockTypeSelect,
+  ColorStyleButton,
+  CreateLinkButton,
+  FileCaptionButton,
+  FileReplaceButton,
   FormattingToolbar,
   FormattingToolbarController,
+  NestBlockButton,
   SuggestionMenuController,
+  TextAlignButton,
+  UnnestBlockButton,
   blockTypeSelectItems,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
@@ -31,6 +43,12 @@ const schema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     // Adds the Callout block.
     callout: Callout,
+  },
+  styleSpecs: {
+    // Adds all default styles.
+    ...defaultStyleSpecs,
+    // Adds the Font style.
+    markAsCodeStyle: MarkAsCodeStyle,
   },
 });
 
@@ -97,16 +115,77 @@ export default function Editor({ editable, onChange, initialContent }) {
       <FormattingToolbarController
         formattingToolbar={() => (
           <FormattingToolbar
-            blockTypeSelectItems={[
-              ...blockTypeSelectItems(editor.dictionary),
-              {
-                name: "Callout",
-                type: "callout",
-                icon: RiChat1Line,
-                isSelected: (block) => block.type === "callout",
-              },
-            ]}
-          />
+          // blockTypeSelectItems={[
+          //   ...blockTypeSelectItems(editor.dictionary),
+          //   {
+          //     name: "Callout",
+          //     type: "callout",
+          //     icon: RiChat1Line,
+          //     isSelected: (block) => block.type === "callout",
+          //   },
+          // ]}
+          >
+            <BlockTypeSelect
+              key={"blockTypeSelect"}
+              items={[
+                ...blockTypeSelectItems(editor.dictionary),
+                {
+                  name: "Callout",
+                  type: "callout",
+                  icon: RiChat1Line,
+                  isSelected: (block) => block.type === "callout",
+                },
+              ]}
+            />
+
+            <FileCaptionButton key={"fileCaptionButton"} />
+            <FileReplaceButton key={"replaceFileButton"} />
+
+            <BasicTextStyleButton
+              basicTextStyle={"bold"}
+              key={"boldStyleButton"}
+            />
+            <BasicTextStyleButton
+              basicTextStyle={"italic"}
+              key={"italicStyleButton"}
+            />
+            <BasicTextStyleButton
+              basicTextStyle={"underline"}
+              key={"underlineStyleButton"}
+            />
+            <BasicTextStyleButton
+              basicTextStyle={"strike"}
+              key={"strikeStyleButton"}
+            />
+            {/* Extra button to toggle code styles */}
+            {/* <BasicTextStyleButton
+              key={"codeStyleButton"}
+              basicTextStyle={"code"}
+            /> */}
+
+            {/* Extra button to toggle mark as code */}
+            <MarkAsCode key={"customButton"} />
+
+            <TextAlignButton
+              textAlignment={"left"}
+              key={"textAlignLeftButton"}
+            />
+            <TextAlignButton
+              textAlignment={"center"}
+              key={"textAlignCenterButton"}
+            />
+            <TextAlignButton
+              textAlignment={"right"}
+              key={"textAlignRightButton"}
+            />
+
+            <ColorStyleButton key={"colorStyleButton"} />
+
+            <NestBlockButton key={"nestBlockButton"} />
+            <UnnestBlockButton key={"unnestBlockButton"} />
+
+            <CreateLinkButton key={"createLinkButton"} />
+          </FormattingToolbar>
         )}
       />
 
