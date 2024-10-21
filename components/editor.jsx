@@ -8,6 +8,7 @@ import { Callout } from "@/blocknote-extended/callout";
 import { MarkAsCodeStyle } from "@/blocknote-extended/custom-styles/mark-as-code-style";
 import { MarkAsCode } from "@/blocknote-extended/mark-as-code";
 import { api } from "@/convex/_generated/api";
+import { useEdgeStore } from "@/lib/edgestore";
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
@@ -20,14 +21,18 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   BasicTextStyleButton,
+  BlockColorsItem,
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
+  DragHandleMenu,
   FileCaptionButton,
-  FileReplaceButton,
   FormattingToolbar,
   FormattingToolbarController,
   NestBlockButton,
+  RemoveBlockItem,
+  SideMenu,
+  SideMenuController,
   SuggestionMenuController,
   TextAlignButton,
   UnnestBlockButton,
@@ -52,8 +57,8 @@ const schema = BlockNoteSchema.create({
   },
 });
 
-// Slash menu item to insert an Alert block
-const insertAlert = (editor) => ({
+// Slash menu item to insert an Callout block
+const insertCallout = (editor) => ({
   title: "Callout",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {
@@ -79,20 +84,38 @@ export default function Editor({ editable, onChange, initialContent }) {
   const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
   const generateImageUrl = useMutation(api.documents.generateImageUrl);
 
+  const { edgestore } = useEdgeStore();
+
   const handleUpload = async (file) => {
-    const postUrl = await generateUploadUrl();
+    // const postUrl = await generateUploadUrl();
 
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
+    // const result = await fetch(postUrl, {
+    //   method: "POST",
+    //   headers: { "Content-Type": file.type },
+    //   body: file,
+    // });
 
-    const { storageId } = await result.json();
+    // const { storageId } = await result.json();
 
-    return await generateImageUrl({
-      storageId: storageId,
-    });
+    const res = await edgestore.publicFiles.upload({ file });
+
+    // return await generateImageUrl({
+    //   storageId: storageId,
+    // });
+
+    return res.url;
+  };
+
+  const handleDelete = async (block) => {
+    const mediaTypes = ["image", "video", "audio", "file"];
+    if (
+      mediaTypes.includes(block.type) &&
+      block.props.url.includes("files.edgestore.dev")
+    ) {
+      await edgestore.publicFiles.delete({
+        url: block.props.url,
+      });
+    }
   };
 
   // Creates a new editor instance.
@@ -108,10 +131,27 @@ export default function Editor({ editable, onChange, initialContent }) {
       editor={editor}
       editable={editable}
       theme={resolvedTheme === "dark" ? "dark" : "light"}
+      sideMenu={false}
       formattingToolbar={false}
       slashMenu={false}
       onChange={() => onChange?.(JSON.stringify(editor.document))}
     >
+      <SideMenuController
+        sideMenu={(props) => (
+          <SideMenu
+            {...props}
+            dragHandleMenu={(props) => (
+              <DragHandleMenu {...props}>
+                <span onClick={() => handleDelete(props.block)}>
+                  <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
+                </span>
+                <BlockColorsItem {...props}>Colors</BlockColorsItem>
+              </DragHandleMenu>
+            )}
+          />
+        )}
+      />
+
       <FormattingToolbarController
         formattingToolbar={() => (
           <FormattingToolbar
@@ -139,7 +179,7 @@ export default function Editor({ editable, onChange, initialContent }) {
             />
 
             <FileCaptionButton key={"fileCaptionButton"} />
-            <FileReplaceButton key={"replaceFileButton"} />
+            {/* <FileReplaceButton key={"replaceFileButton"} /> */}
 
             <BasicTextStyleButton
               basicTextStyle={"bold"}
@@ -193,9 +233,9 @@ export default function Editor({ editable, onChange, initialContent }) {
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) =>
-          // Gets all default slash menu items and `insertAlert` item.
+          // Gets all default slash menu items and `insertCallout` item.
           filterSuggestionItems(
-            [...getDefaultReactSlashMenuItems(editor), insertAlert(editor)],
+            [...getDefaultReactSlashMenuItems(editor), insertCallout(editor)],
             query
           )
         }

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { RiCodeSSlashFill } from "react-icons/ri";
 
+import { checkBlockIsFileBlock } from "@blocknote/core";
 import "@blocknote/mantine/style.css";
 import {
   useBlockNoteEditor,
   useComponentsContext,
   useEditorContentOrSelectionChange,
+  useSelectedBlocks,
 } from "@blocknote/react";
 
 // Custom Formatting Toolbar Button to MarkAsCode.
@@ -42,13 +44,18 @@ export function MarkAsCode() {
       document.removeEventListener("keydown", onCtrlPlusEKeyPress, true);
   }, []);
 
-  // Don't show when isEditable is false
-  if (!editor.isEditable) {
+  const selectedBlocks = useSelectedBlocks(editor);
+
+  const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
+
+  // Don't show when isEditable is false or selected content in file
+  if (!editor.isEditable || checkBlockIsFileBlock(block, editor)) {
     return null;
   }
 
   return (
     <Components.FormattingToolbar.Button
+      label={"Mark as code"}
       mainTooltip={"Mark as code"}
       secondaryTooltip={"Ctrl+E"}
       onClick={() => {
