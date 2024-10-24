@@ -11,7 +11,7 @@ import { api } from "@/convex/_generated/api";
 
 export default function DocumentIdPage({ params }) {
   const Editor = useMemo(
-    () => dynamic(() => import("@/components/Editor"), { ssr: false }),
+    () => dynamic(() => import("@/components/editor"), { ssr: false }),
     []
   );
 
