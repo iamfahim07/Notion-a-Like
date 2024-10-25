@@ -4,15 +4,8 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "reliable-tern-930.convex.cloud",
+        hostname: "**.convex.cloud",
         port: "",
-        // pathname: "/account123/**",
-      },
-      {
-        protocol: "https",
-        hostname: "wary-impala-10.convex.cloud",
-        port: "",
-        // pathname: "/account123/**",
       },
     ],
   },
