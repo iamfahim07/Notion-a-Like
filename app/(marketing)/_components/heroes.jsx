@@ -6,14 +6,14 @@ export default function Heroes() {
       <div className="flex items-center">
         <div className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px]">
           <Image
-            src="/documents.webp"
+            src="/spaceman.webp"
             fill
             className="object-contain dark:hidden"
             alt="Documents"
           />
 
           <Image
-            src="/documents-dark.webp"
+            src="/spaceman-dark.webp"
             fill
             className="object-contain hidden dark:block"
             alt="Documents"
@@ -22,14 +22,14 @@ export default function Heroes() {
 
         <div className="relative w-[400px] h-[400px] hidden md:block">
           <Image
-            src="/reading.webp"
+            src="/knowledge.webp"
             fill
             className="object-contain dark:hidden"
             alt="Reading"
           />
 
           <Image
-            src="/reading-dark.webp"
+            src="/knowledge-dark.webp"
             fill
             className="object-contain hidden dark:block"
             alt="Reading"
