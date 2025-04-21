@@ -9,6 +9,7 @@ import { MarkAsCodeStyle } from "@/blocknote-extended/custom-styles/mark-as-code
 import { MarkAsCode } from "@/blocknote-extended/mark-as-code";
 import { api } from "@/convex/_generated/api";
 import { useEdgeStore } from "@/lib/edgestore";
+import { codeBlock } from "@blocknote/code-block";
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
@@ -121,6 +122,7 @@ export default function Editor({ editable, onChange, initialContent }) {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     schema,
+    codeBlock,
     initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     uploadFile: handleUpload,
   });
